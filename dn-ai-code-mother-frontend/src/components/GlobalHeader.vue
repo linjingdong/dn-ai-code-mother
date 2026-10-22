@@ -19,7 +19,15 @@
 
       <!-- 右侧：用户操作区域 -->
       <div class="global-header__actions">
-        <a-button type="primary" shape="round">登录</a-button>
+        <div v-if="loginUserStore.loginUser.id">
+          <a-space>
+            <a-avatar :src="loginUserStore.loginUser.userAvatar" />
+            {{ loginUserStore.loginUser.userName ?? '无名' }}
+          </a-space>
+        </div>
+        <div v-else>
+          <a-button type="primary" shape="round" href="/user/login">登录</a-button>
+        </div>
         <a-button
           v-if="isMobile"
           class="global-header__trigger"
@@ -50,7 +58,9 @@ import { computed, h, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { Grid } from 'ant-design-vue'
 import type { MenuProps } from 'ant-design-vue'
+import { useLoginUserStore } from '@/stores/loginUser.ts'
 
+const loginUserStore = useLoginUserStore()
 const router = useRouter()
 const screens = Grid.useBreakpoint()
 const isMobile = computed(() => !screens.value.md)
