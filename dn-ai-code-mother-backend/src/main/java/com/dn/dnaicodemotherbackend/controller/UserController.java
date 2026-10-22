@@ -1,9 +1,19 @@
 package com.dn.dnaicodemotherbackend.controller;
 
+import com.dn.dnaicodemotherbackend.annotation.AuthCheck;
+import com.dn.dnaicodemotherbackend.common.BaseResponse;
+import com.dn.dnaicodemotherbackend.common.ResultUtils;
+import com.dn.dnaicodemotherbackend.constant.UserConstant;
+import com.dn.dnaicodemotherbackend.exception.ErrorCode;
+import com.dn.dnaicodemotherbackend.exception.ThrowUtils;
+import com.dn.dnaicodemotherbackend.model.dto.UserLoginRequest;
+import com.dn.dnaicodemotherbackend.model.dto.UserRegisterRequest;
 import com.dn.dnaicodemotherbackend.model.entity.User;
+import com.dn.dnaicodemotherbackend.model.vo.LoginUserVO;
 import com.dn.dnaicodemotherbackend.service.UserService;
 import com.mybatisflex.core.paginate.Page;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,8 +27,59 @@ import java.util.List;
 @RequestMapping("/user")
 public class UserController {
 
-    @Autowired
+    @Resource
     private UserService userService;
+
+    /**
+     * 用户注册
+     * @param dto 用户注册参数
+     * @return 用户ID
+     */
+    @PostMapping("/register")
+    public BaseResponse<Long> userRegister(@RequestBody UserRegisterRequest dto) {
+        String userAccount = dto.getUserAccount();
+        String userPassword = dto.getUserPassword();
+        String checkPassword = dto.getCheckPassword();
+        long id = userService.userRegister(userAccount, userPassword, checkPassword);
+        return ResultUtils.success(id);
+    }
+
+    /**
+     * 用户登录
+     * @param dto 用户登录参数
+     * @param request 请求
+     * @return 用户信息
+     */
+    @PostMapping("/login")
+    public BaseResponse<LoginUserVO> userLogin(@RequestBody UserLoginRequest dto, HttpServletRequest request) {
+        ThrowUtils.throwIf(dto == null, ErrorCode.PARAMS_ERROR);
+        String userAccount = dto.getUserAccount();
+        String userPassword = dto.getUserPassword();
+        return ResultUtils.success(userService.userLogin(userAccount, userPassword, request));
+    }
+
+    /**
+     * 获取当前用户
+     * @param request 请求
+     * @return 当前用户
+     */
+    @GetMapping("/get/login")
+    public BaseResponse<LoginUserVO> getLoginUser(HttpServletRequest request) {
+        User loginUser = userService.getLoginUser(request);
+        return ResultUtils.success(userService.getLoginUserVO(loginUser));
+    }
+
+    /**
+     * 退出登录
+     * @param request 请求
+     * @return 布尔值
+     */
+    @PostMapping("/logout")
+    public BaseResponse<Boolean> userLogout(HttpServletRequest request) {
+        ThrowUtils.throwIf(request == null, ErrorCode.PARAMS_ERROR);
+        boolean result = userService.userLogout(request);
+        return ResultUtils.success(result);
+    }
 
     /**
      * 保存用户。
@@ -26,6 +87,7 @@ public class UserController {
      * @param user 用户
      * @return {@code true} 保存成功，{@code false} 保存失败
      */
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @PostMapping("save")
     public boolean save(@RequestBody User user) {
         return userService.save(user);
