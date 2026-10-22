@@ -45,12 +45,12 @@ public class AuthInterceptor {
 
         // 如果登录用户无权限，拦截
         if (userRoleEnum == null) {
-            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
+            throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }
 
         // 如果必须需要管理员，登录用户没有，拦截
         if (mustRoleEnum == UserRoleEnum.ADMIN && userRoleEnum != UserRoleEnum.ADMIN) {
-            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
+            throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }
 
         return joinPoint.proceed();

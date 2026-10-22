@@ -1,9 +1,14 @@
 package com.dn.dnaicodemotherbackend.service;
 
+import com.dn.dnaicodemotherbackend.model.dto.UserQueryRequest;
 import com.dn.dnaicodemotherbackend.model.entity.User;
 import com.dn.dnaicodemotherbackend.model.vo.LoginUserVO;
+import com.dn.dnaicodemotherbackend.model.vo.UserVO;
+import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.core.service.IService;
 import jakarta.servlet.http.HttpServletRequest;
+
+import java.util.List;
 
 /**
  * 用户 服务层。
@@ -47,7 +52,26 @@ public interface UserService extends IService<User> {
      */
     boolean userLogout(HttpServletRequest request);
 
+    /**
+     * 获取用户脱敏信息
+     * @param user 用户
+     * @return 脱敏信息
+     */
+    UserVO getUserVO(User user);
 
+    /**
+     * 获取用户列表脱敏信息
+     * @param userList 用户列表
+     * @return 用户列表脱敏信息
+     */
+    List<UserVO> getUserVOList(List<User> userList);
+
+    /**
+     * 通过查询参数转换为数据层查询条件
+     * @param userQueryRequest 查询参数
+     * @return 数据层查询条件
+     */
+    QueryWrapper getQueryWrapper(UserQueryRequest userQueryRequest);
 
     /**
      * 密码加密

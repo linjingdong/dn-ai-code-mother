@@ -9,10 +9,11 @@ import lombok.Data;
  **/
 @Data
 public class PageRequest {
+
     /**
      * 当前页号
      */
-    private int current = 1;
+    private int pageNum = 1;
 
     /**
      * 页面大小
