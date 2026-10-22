@@ -1,38 +1,40 @@
 <template>
-  <a-layout-footer class="footer">
-    <div class="footer-content">
-      <p class="copyright">
-        <a
-          href="https://github.com/linjingdong"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="author-link"
-        >
-          豆泥搭搭 by donny
-        </a>
-      </p>
-    </div>
+  <a-layout-footer class="global-footer">
+    <p class="global-footer__copyright">
+      <a
+        class="global-footer__link"
+        href="https://github.com/linjingdong"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        豆泥搭搭 by donny
+      </a>
+    </p>
   </a-layout-footer>
 </template>
 
-<script setup lang="ts">
-// 无需额外的响应式数据
-</script>
-
 <style scoped>
-.footer {
-  background: #efefef;
+.global-footer {
+  flex-shrink: 0;
+  padding: 16px 24px;
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.45);
   text-align: center;
-  padding: 20px;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  background: #fff;
+  border-top: 1px solid #f0f0f0;
 }
 
-.copyright {
+.global-footer__copyright {
   margin: 0;
-  color: #666;
-  font-size: 14px;
+}
+
+.global-footer__link {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.global-footer__link:hover {
+  color: #1677ff;
 }
 </style>
