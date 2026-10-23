@@ -3,6 +3,7 @@ package com.dn.dnaicodemotherbackend.ai;
 import com.dn.dnaicodemotherbackend.ai.model.HtmlCodeResult;
 import com.dn.dnaicodemotherbackend.ai.model.MultiFileCodeResult;
 import dev.langchain4j.service.SystemMessage;
+import reactor.core.publisher.Flux;
 
 /**
  * @author Lin_jd
@@ -26,4 +27,20 @@ public interface AiCodeGeneratorService {
      */
     @SystemMessage(fromResource = "prompt/codegen-multi-file-system-prompt.txt")
     MultiFileCodeResult generateMultiFileCode(String usePrompt);
+
+    /**
+     * 流式生成 HTML 代码
+     * @param usePrompt 用户提示词
+     * @return 响应
+     */
+    @SystemMessage(fromResource = "prompt/codegen-html-system-prompt.txt")
+    Flux<String> generateHtmlCodeStream(String usePrompt);
+
+    /**
+     * 流式生成多文件代码
+     * @param usePrompt 用户提示词
+     * @return 响应
+     */
+    @SystemMessage(fromResource = "prompt/codegen-multi-file-system-prompt.txt")
+    Flux<String> generateMultiFileCodeStream(String usePrompt);
 }
