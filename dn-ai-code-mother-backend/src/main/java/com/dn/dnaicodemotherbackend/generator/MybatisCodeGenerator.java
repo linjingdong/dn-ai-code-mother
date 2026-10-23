@@ -16,7 +16,7 @@ import java.util.Map;
 public class MybatisCodeGenerator {
 
     // 需要生成的表名
-    private static final String[] TABLE_NAME = {"user"};
+    private static final String[] TABLE_NAME = {"app"};
 
     public static void main(String[] args) {
         Dict dict = YamlUtil.loadByPath("application.yml");
