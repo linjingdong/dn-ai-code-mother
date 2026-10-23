@@ -9,7 +9,7 @@ import com.dn.dnaicodemotherbackend.constant.UserConstant;
 import com.dn.dnaicodemotherbackend.exception.BusinessException;
 import com.dn.dnaicodemotherbackend.exception.ErrorCode;
 import com.dn.dnaicodemotherbackend.exception.ThrowUtils;
-import com.dn.dnaicodemotherbackend.model.dto.*;
+import com.dn.dnaicodemotherbackend.model.dto.user.*;
 import com.dn.dnaicodemotherbackend.model.entity.User;
 import com.dn.dnaicodemotherbackend.model.vo.LoginUserVO;
 import com.dn.dnaicodemotherbackend.model.vo.UserVO;

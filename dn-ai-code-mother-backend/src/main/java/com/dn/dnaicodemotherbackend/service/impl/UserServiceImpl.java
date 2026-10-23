@@ -6,7 +6,7 @@ import cn.hutool.core.util.StrUtil;
 import com.dn.dnaicodemotherbackend.exception.BusinessException;
 import com.dn.dnaicodemotherbackend.exception.ErrorCode;
 import com.dn.dnaicodemotherbackend.mapper.UserMapper;
-import com.dn.dnaicodemotherbackend.model.dto.UserQueryRequest;
+import com.dn.dnaicodemotherbackend.model.dto.user.UserQueryRequest;
 import com.dn.dnaicodemotherbackend.model.entity.User;
 import com.dn.dnaicodemotherbackend.model.enums.UserRoleEnum;
 import com.dn.dnaicodemotherbackend.model.vo.LoginUserVO;

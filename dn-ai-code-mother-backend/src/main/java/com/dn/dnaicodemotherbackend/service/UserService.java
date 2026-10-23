@@ -1,6 +1,6 @@
 package com.dn.dnaicodemotherbackend.service;
 
-import com.dn.dnaicodemotherbackend.model.dto.UserQueryRequest;
+import com.dn.dnaicodemotherbackend.model.dto.user.UserQueryRequest;
 import com.dn.dnaicodemotherbackend.model.entity.User;
 import com.dn.dnaicodemotherbackend.model.vo.LoginUserVO;
 import com.dn.dnaicodemotherbackend.model.vo.UserVO;
