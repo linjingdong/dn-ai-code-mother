@@ -92,9 +92,7 @@ public class AiCodeGeneratorFacade {
     private Flux<String> processCodeStream(Flux<String> codeStream, CodeGenTypeEnum codeGenTypeEnum, Long appId) {
         StringBuilder stringBuilder = new StringBuilder();
         return codeStream
-                .doOnNext(chunk -> {
-                    stringBuilder.append(chunk);
-                })
+                .doOnNext(stringBuilder::append)
                 .doOnComplete(() -> {
                     try {
                         String completeContent = stringBuilder.toString();

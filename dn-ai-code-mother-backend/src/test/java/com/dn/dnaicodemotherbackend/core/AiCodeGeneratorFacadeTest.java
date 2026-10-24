@@ -30,7 +30,7 @@ class AiCodeGeneratorFacadeTest {
 
     @Test
     void generateAndSaveCodeStream() {
-        Flux<String> codeStream = aiCodeGeneratorFacade.generateAndSaveCodeStream("生成一个登录界面", CodeGenTypeEnum.MULTI_FILE, IdUtil.getSnowflakeNextId());
+        Flux<String> codeStream = aiCodeGeneratorFacade.generateAndSaveCodeStream("生成一个好看的登录页面", CodeGenTypeEnum.MULTI_FILE, IdUtil.getSnowflakeNextId());
         // 阻塞等待所有数据收集完成
         List<String> result = codeStream.collectList().block();
         // 验证结果
