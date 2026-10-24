@@ -32,9 +32,10 @@ public class AiCodeGeneratorFacade {
      * 根据类型生成和保存应用代码
      * @param userMessage 用户提示词
      * @param codeGenType 生成代码类型
+     * @param appId 应用ID
      * @return 保存的文件目录
      */
-    public File generateAndSaveCode(String userMessage, CodeGenTypeEnum codeGenType) {
+    public File generateAndSaveCode(String userMessage, CodeGenTypeEnum codeGenType, Long appId) {
         if (codeGenType == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数不能为空");
         }
@@ -42,11 +43,11 @@ public class AiCodeGeneratorFacade {
         return switch (codeGenType) {
             case HTML -> {
                 HtmlCodeResult htmlCodeResult = aiCodeGeneratorService.generateHtmlCode(userMessage);
-                yield CodeFileSaverExecutor.executeSave(htmlCodeResult, codeGenType);
+                yield CodeFileSaverExecutor.executeSave(htmlCodeResult, codeGenType, appId);
             }
             case MULTI_FILE -> {
                 MultiFileCodeResult multiFileCodeResult = aiCodeGeneratorService.generateMultiFileCode(userMessage);
-                yield CodeFileSaverExecutor.executeSave(multiFileCodeResult, codeGenType);
+                yield CodeFileSaverExecutor.executeSave(multiFileCodeResult, codeGenType, appId);
             }
             default -> {
                 throw new BusinessException(ErrorCode.SYSTEM_ERROR, String.format("不支持的生成类型：%s", codeGenType.getValue()));
@@ -58,9 +59,10 @@ public class AiCodeGeneratorFacade {
      * 根据类型生成和保存应用代码（流式）
      * @param userMessage 用户提示词
      * @param codeGenType 生成代码类型
+     * @param appId 应用ID
      * @return 流式响应
      */
-    public Flux<String> generateAndSaveCodeStream(String userMessage, CodeGenTypeEnum codeGenType) {
+    public Flux<String> generateAndSaveCodeStream(String userMessage, CodeGenTypeEnum codeGenType, Long appId) {
         if (codeGenType == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数不能为空");
         }
@@ -68,11 +70,11 @@ public class AiCodeGeneratorFacade {
         return switch (codeGenType) {
             case HTML -> {
                 Flux<String> codeStream = aiCodeGeneratorService.generateHtmlCodeStream(userMessage);
-                yield processCodeStream(codeStream, codeGenType);
+                yield processCodeStream(codeStream, codeGenType, appId);
             }
             case MULTI_FILE -> {
                 Flux<String> codeStream = aiCodeGeneratorService.generateMultiFileCodeStream(userMessage);
-                yield processCodeStream(codeStream, codeGenType);
+                yield processCodeStream(codeStream, codeGenType, appId);
             }
             default -> {
                 throw new BusinessException(ErrorCode.SYSTEM_ERROR, String.format("不支持的生成类型：%s", codeGenType.getValue()));
@@ -84,9 +86,10 @@ public class AiCodeGeneratorFacade {
      * 通用流式代码处理方法
      * @param codeStream 代码流
      * @param codeGenTypeEnum 生成代码类型
+     * @param appId 应用ID
      * @return 流式响应
      */
-    private Flux<String> processCodeStream(Flux<String> codeStream, CodeGenTypeEnum codeGenTypeEnum) {
+    private Flux<String> processCodeStream(Flux<String> codeStream, CodeGenTypeEnum codeGenTypeEnum, Long appId) {
         StringBuilder stringBuilder = new StringBuilder();
         return codeStream
                 .doOnNext(chunk -> {
@@ -98,7 +101,7 @@ public class AiCodeGeneratorFacade {
                         // 使用执行器转换
                         Object resultObj = CodeParserExecutor.executeParser(completeContent, codeGenTypeEnum);
                         // 使用执行器保存
-                        File file = CodeFileSaverExecutor.executeSave(resultObj, codeGenTypeEnum);
+                        File file = CodeFileSaverExecutor.executeSave(resultObj, codeGenTypeEnum, appId);
                         log.info("保存成功，路径为：{}", file.getAbsolutePath());
                     } catch (Exception e) {
                         log.error("保存失败：{}", e.getMessage());

@@ -1,7 +1,6 @@
 package com.dn.dnaicodemotherbackend.core.saver;
 
 import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.util.IdUtil;
 import com.dn.dnaicodemotherbackend.exception.BusinessException;
 import com.dn.dnaicodemotherbackend.exception.ErrorCode;
 import com.dn.dnaicodemotherbackend.model.enums.CodeGenTypeEnum;
@@ -19,11 +18,11 @@ public abstract class CodeFileSaverTemplate<T> {
     // 文件保存根目录
     protected static final String FILE_SAVE_ROOT_DIR = System.getProperty("user.dir") + "/tmp/code_output";
 
-    public final File saveCode(T result) {
+    public final File saveCode(T result, Long appId) {
         // 1. 校验输入
         validateInput(result);
         // 2. 构建唯一目录
-        String baseDirPath = buildUniqueDir();
+        String baseDirPath = buildUniqueDir(appId);
         // 3. 保存文件（具体由子类实现）
         saveFile(result, baseDirPath);
         // 4. 返回目录文件对象
@@ -55,11 +54,12 @@ public abstract class CodeFileSaverTemplate<T> {
 
     /**
      * 构建唯一目录路径
+     * @param appId 应用ID
      * @return 唯一路径
      */
-    protected final String buildUniqueDir() {
+    protected final String buildUniqueDir(Long appId) {
         String codeType = getCodeType().getValue();
-        String uniqueDirName = String.format("%s_%s", codeType, IdUtil.getSnowflakeNextId());
+        String uniqueDirName = String.format("%s_%s", codeType, appId);
         String dirPath = FILE_SAVE_ROOT_DIR + File.separator + uniqueDirName;
         FileUtil.mkdir(dirPath);
         return dirPath;

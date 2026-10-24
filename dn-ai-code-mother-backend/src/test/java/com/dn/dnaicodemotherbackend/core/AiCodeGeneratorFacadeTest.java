@@ -1,5 +1,6 @@
 package com.dn.dnaicodemotherbackend.core;
 
+import cn.hutool.core.util.IdUtil;
 import com.dn.dnaicodemotherbackend.model.enums.CodeGenTypeEnum;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Assertions;
@@ -23,13 +24,13 @@ class AiCodeGeneratorFacadeTest {
 
     @Test
     void generateAndSaveCode() {
-        File file = aiCodeGeneratorFacade.generateAndSaveCode("生成一个登录界面，不超过 50 行", CodeGenTypeEnum.MULTI_FILE);
+        File file = aiCodeGeneratorFacade.generateAndSaveCode("生成一个登录界面，不超过 50 行", CodeGenTypeEnum.MULTI_FILE, IdUtil.getSnowflakeNextId());
         Assertions.assertNotNull(file);
     }
 
     @Test
     void generateAndSaveCodeStream() {
-        Flux<String> codeStream = aiCodeGeneratorFacade.generateAndSaveCodeStream("生成一个登录界面", CodeGenTypeEnum.MULTI_FILE);
+        Flux<String> codeStream = aiCodeGeneratorFacade.generateAndSaveCodeStream("生成一个登录界面", CodeGenTypeEnum.MULTI_FILE, IdUtil.getSnowflakeNextId());
         // 阻塞等待所有数据收集完成
         List<String> result = codeStream.collectList().block();
         // 验证结果
