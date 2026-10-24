@@ -27,6 +27,14 @@ public interface AppService extends IService<App> {
     Flux<String> chatToGenCode(Long appId, String message, User loginUser);
 
     /**
+     * 应用部署
+     * @param appId 应用 ID
+     * @param loginUser 登录用户
+     * @return 部署 URL
+     */
+    String deployApp(Long appId, User loginUser);
+
+    /**
      * 应用脱敏信息
      * @param app 应用
      * @return 脱敏信息

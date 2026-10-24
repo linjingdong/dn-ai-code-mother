@@ -12,10 +12,7 @@ import com.dn.dnaicodemotherbackend.constant.UserConstant;
 import com.dn.dnaicodemotherbackend.exception.BusinessException;
 import com.dn.dnaicodemotherbackend.exception.ErrorCode;
 import com.dn.dnaicodemotherbackend.exception.ThrowUtils;
-import com.dn.dnaicodemotherbackend.model.dto.app.AppAddRequest;
-import com.dn.dnaicodemotherbackend.model.dto.app.AppAdminUpdateRequest;
-import com.dn.dnaicodemotherbackend.model.dto.app.AppQueryRequest;
-import com.dn.dnaicodemotherbackend.model.dto.app.AppUpdateRequest;
+import com.dn.dnaicodemotherbackend.model.dto.app.*;
 import com.dn.dnaicodemotherbackend.model.entity.App;
 import com.dn.dnaicodemotherbackend.model.entity.User;
 import com.dn.dnaicodemotherbackend.model.enums.CodeGenTypeEnum;
@@ -77,6 +74,15 @@ public class AppController {
                                 .data("")
                                 .build()
                 ));
+    }
+
+    @PostMapping("/deploy")
+    public String deployApp(@RequestBody AppDeployRequest appDeployRequest, HttpServletRequest request) {
+        ThrowUtils.throwIf(appDeployRequest == null, ErrorCode.PARAMS_ERROR, "请求参数为空");
+        Long appId = appDeployRequest.getAppId();
+        ThrowUtils.throwIf(appId == null || appId <= 0, ErrorCode.PARAMS_ERROR, "应用 ID 不能为空");
+        User loginUser = userService.getLoginUser(request);
+        return appService.deployApp(appId, loginUser);
     }
 
     /**

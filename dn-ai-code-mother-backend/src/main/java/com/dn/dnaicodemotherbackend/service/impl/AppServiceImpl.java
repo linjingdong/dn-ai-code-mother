@@ -2,7 +2,10 @@ package com.dn.dnaicodemotherbackend.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
+import com.dn.dnaicodemotherbackend.constant.AppConstant;
 import com.dn.dnaicodemotherbackend.core.AiCodeGeneratorFacade;
 import com.dn.dnaicodemotherbackend.exception.BusinessException;
 import com.dn.dnaicodemotherbackend.exception.ErrorCode;
@@ -22,6 +25,8 @@ import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
+import java.io.File;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -68,6 +73,53 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App>  implements AppS
 
         // 5. 调用 AI 生成应用代码
         return aiCodeGeneratorFacade.generateAndSaveCodeStream(message, codeGenTypeEnum, appId);
+    }
+
+    @Override
+    public String deployApp(Long appId, User loginUser) {
+        // 1. 参数校验
+        ThrowUtils.throwIf(appId == null || appId <= 0, ErrorCode.PARAMS_ERROR, "应用 ID 错误");
+        ThrowUtils.throwIf(loginUser == null, ErrorCode.NOT_LOGIN_ERROR, "用户未登录");
+
+        // 2. 查询应用信息
+        App app = this.getById(appId);
+        ThrowUtils.throwIf(app == null, ErrorCode.PARAMS_ERROR, "应用不存在");
+
+        // 3. 验证用户是否有权限部署该应用（仅本人可部署）
+        ThrowUtils.throwIf(!app.getUserId().equals(loginUser.getId()), ErrorCode.NO_AUTH_ERROR, "无权限部署该应用");
+
+        // 4. 检查是否存在deployKey
+        String deployKey = app.getDeployKey();
+        if (StrUtil.isBlank(deployKey)) {
+            deployKey = RandomUtil.randomString(6);
+        }
+
+        // 5. 获取生成代码类型，构造源目录路径
+        String codeGenType = app.getCodeGenType();
+        String sourceDirName = String.format("%s_%s", codeGenType, appId);
+        String sourceDirPath = AppConstant.CODE_OUTPUT_ROOT_DIR + File.separator + sourceDirName;
+
+        // 6. 检查源目录是否存在
+        File sourceFile = new File(sourceDirPath);
+        ThrowUtils.throwIf(!sourceFile.exists() || !sourceFile.isDirectory(), ErrorCode.SYSTEM_ERROR, "应用不存在，请先生成应用");
+
+        // 7. 复制文件到部署目录
+        String deployDirPath = AppConstant.CODE_DEPLOY_ROOT_DIR + File.separator + deployKey;
+        try {
+            FileUtil.copyContent(sourceFile, new File(deployDirPath), true);
+        } catch (Exception e) {
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "部署失败：" + e.getMessage());
+        }
+
+        // 8. 更新应用的部署信息
+        App updateApp = new App();
+        updateApp.setId(appId);
+        updateApp.setDeployKey(deployKey);
+        updateApp.setDeployedTime(LocalDateTime.now());
+        boolean updateResult = this.updateById(updateApp);
+        ThrowUtils.throwIf(!updateResult, ErrorCode.OPERATION_ERROR, "更新应用部署信息失败");
+
+        return String.format("%s/%s/", AppConstant.CODE_DEPLOY_HOST, deployKey);
     }
 
     @Override
