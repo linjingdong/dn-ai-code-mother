@@ -167,7 +167,7 @@ onMounted(() => {
 <style scoped>
 /* 搜索区域卡片 */
 #userManagePage {
-  padding: 20px 24px;
+  padding: 16px 20px;
   background: #fff;
   border: 1px solid #ebedf0;
   border-radius: 12px;
@@ -192,7 +192,7 @@ onMounted(() => {
 
 #userManagePage :deep(.ant-input) {
   width: 200px;
-  height: 40px;
+  height: 36px;
   padding: 0 12px;
   font-size: 14px;
   border-radius: 8px;
@@ -212,7 +212,7 @@ onMounted(() => {
 
 /* 搜索按钮 */
 #userManagePage :deep(.ant-btn) {
-  height: 40px;
+  height: 36px;
   padding: 0 20px;
   font-size: 14px;
   font-weight: 500;
