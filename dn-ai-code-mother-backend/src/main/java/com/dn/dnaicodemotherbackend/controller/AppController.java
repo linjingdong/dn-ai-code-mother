@@ -77,12 +77,12 @@ public class AppController {
     }
 
     @PostMapping("/deploy")
-    public String deployApp(@RequestBody AppDeployRequest appDeployRequest, HttpServletRequest request) {
+    public BaseResponse<String> deployApp(@RequestBody AppDeployRequest appDeployRequest, HttpServletRequest request) {
         ThrowUtils.throwIf(appDeployRequest == null, ErrorCode.PARAMS_ERROR, "请求参数为空");
         Long appId = appDeployRequest.getAppId();
         ThrowUtils.throwIf(appId == null || appId <= 0, ErrorCode.PARAMS_ERROR, "应用 ID 不能为空");
         User loginUser = userService.getLoginUser(request);
-        return appService.deployApp(appId, loginUser);
+        return ResultUtils.success(appService.deployApp(appId, loginUser));
     }
 
     /**

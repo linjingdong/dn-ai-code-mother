@@ -101,6 +101,11 @@ const originItems = [
     title: '用户管理',
   },
   {
+    key: '/admin/appManage',
+    label: '应用管理',
+    title: '应用管理',
+  },
+  {
     key: '/about',
     label: h('a', { href: 'https://github.com/linjingdong', target: '_blank' }, '关于'),
     title: '关于我们',

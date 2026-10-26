@@ -100,7 +100,7 @@ export async function deleteApp(body: API.DeleteRequest, options?: { [key: strin
 
 /** 此处后端没有提供注释 POST /app/deploy */
 export async function deployApp(body: API.AppDeployRequest, options?: { [key: string]: any }) {
-  return request<string>('/app/deploy', {
+  return request<API.BaseResponseString>('/app/deploy', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
