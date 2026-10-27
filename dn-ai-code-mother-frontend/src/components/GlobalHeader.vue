@@ -73,6 +73,7 @@ import { useLoginUserStore } from '@/stores/loginUser.ts'
 import { LogoutOutlined } from '@ant-design/icons-vue'
 import { userLogout } from '@/api/userController.ts'
 import { HomeOutlined } from '@ant-design/icons-vue'
+import ChatManagePage from '@/pages/admin/ChatManagePage.vue'
 
 const loginUserStore = useLoginUserStore()
 const router = useRouter()
@@ -104,6 +105,11 @@ const originItems = [
     key: '/admin/appManage',
     label: '应用管理',
     title: '应用管理',
+  },
+  {
+    key: '/admin/chatManage',
+    label: '对话管理',
+    title: '对话管理',
   },
   {
     key: '/about',
