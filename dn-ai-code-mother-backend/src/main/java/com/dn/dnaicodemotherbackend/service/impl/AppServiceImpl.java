@@ -14,18 +14,22 @@ import com.dn.dnaicodemotherbackend.mapper.AppMapper;
 import com.dn.dnaicodemotherbackend.model.dto.app.AppQueryRequest;
 import com.dn.dnaicodemotherbackend.model.entity.App;
 import com.dn.dnaicodemotherbackend.model.entity.User;
+import com.dn.dnaicodemotherbackend.model.enums.ChatHistoryMessageTypeEnum;
 import com.dn.dnaicodemotherbackend.model.enums.CodeGenTypeEnum;
 import com.dn.dnaicodemotherbackend.model.vo.AppVO;
 import com.dn.dnaicodemotherbackend.model.vo.UserVO;
 import com.dn.dnaicodemotherbackend.service.AppService;
+import com.dn.dnaicodemotherbackend.service.ChatHistoryService;
 import com.dn.dnaicodemotherbackend.service.UserService;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
 import java.io.File;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +43,7 @@ import java.util.stream.Collectors;
  * @author Lin_jd
  */
 @Service
+@Slf4j
 public class AppServiceImpl extends ServiceImpl<AppMapper, App>  implements AppService{
 
     @Resource
@@ -46,6 +51,9 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App>  implements AppS
 
     @Resource
     private AiCodeGeneratorFacade aiCodeGeneratorFacade;
+
+    @Resource
+    private ChatHistoryService chatHistoryService;
 
     @Override
     public Flux<String> chatToGenCode(Long appId, String message, User loginUser) {
@@ -71,8 +79,23 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App>  implements AppS
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "不支持的应用类型");
         }
 
-        // 5. 调用 AI 生成应用代码
-        return aiCodeGeneratorFacade.generateAndSaveCodeStream(message, codeGenTypeEnum, appId);
+        // 5. 通过校验后，添加用户消息到消息历史
+        chatHistoryService.addChatHistory(appId, message, ChatHistoryMessageTypeEnum.USER.getValue(), loginUser.getId());
+
+        // 6. 调用 AI 生成应用代码
+        Flux<String> contentStream = aiCodeGeneratorFacade.generateAndSaveCodeStream(message, codeGenTypeEnum, appId);
+
+        StringBuilder aiResponseBuilder = new StringBuilder();
+        return contentStream.map(chuck -> {
+            aiResponseBuilder.append(chuck);
+            return chuck;
+        }).doOnComplete(() -> {
+            String aiResponse = aiResponseBuilder.toString();
+            chatHistoryService.addChatHistory(appId, aiResponse, ChatHistoryMessageTypeEnum.AI.getValue(), loginUser.getId());
+        }).doOnError(error -> {
+            String errorMessage = String.format("AI 响应错误：" + error.getMessage());
+            chatHistoryService.addChatHistory(appId, errorMessage, ChatHistoryMessageTypeEnum.AI.getValue(), loginUser.getId());
+        });
     }
 
     @Override
@@ -185,4 +208,23 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App>  implements AppS
         }).collect(Collectors.toList());
     }
 
+    @Override
+    public boolean removeById(Serializable id) {
+        if (id == null) {
+            return false;
+        }
+
+        long appId = Long.parseLong(id.toString());
+        if (appId <= 0) {
+            return false;
+        }
+
+        try {
+            chatHistoryService.removeById(appId);
+        } catch (Exception e) {
+            log.error("删除应用关联对话历史失败：{}", e.getMessage());
+        }
+
+        return super.removeById(id);
+    }
 }
