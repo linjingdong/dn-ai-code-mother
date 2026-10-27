@@ -1,12 +1,18 @@
 package com.dn.dnaicodemotherbackend.controller;
 
+import com.dn.dnaicodemotherbackend.annotation.AuthCheck;
 import com.dn.dnaicodemotherbackend.common.BaseResponse;
 import com.dn.dnaicodemotherbackend.common.ResultUtils;
+import com.dn.dnaicodemotherbackend.constant.UserConstant;
+import com.dn.dnaicodemotherbackend.exception.ErrorCode;
+import com.dn.dnaicodemotherbackend.exception.ThrowUtils;
+import com.dn.dnaicodemotherbackend.model.dto.chatHistory.ChatHistoryQueryRequest;
 import com.dn.dnaicodemotherbackend.model.entity.ChatHistory;
 import com.dn.dnaicodemotherbackend.model.entity.User;
 import com.dn.dnaicodemotherbackend.service.ChatHistoryService;
 import com.dn.dnaicodemotherbackend.service.UserService;
 import com.mybatisflex.core.paginate.Page;
+import com.mybatisflex.core.query.QueryWrapper;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.*;
@@ -44,6 +50,24 @@ public class ChatHistoryController {
                                                               HttpServletRequest request) {
         User loginUser = userService.getLoginUser(request);
         Page<ChatHistory> result = chatHistoryService.listAppChatHistoryByPage(appId, pageSize, lastCreateTime, loginUser);
+        return ResultUtils.success(result);
+    }
+
+    /**
+     * 管理员分页查询所有对话历史
+     *
+     * @param chatHistoryQueryRequest 查询请求
+     * @return 对话历史分页
+     */
+    @PostMapping("/admin/list/page/vo")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Page<ChatHistory>> listAllChatHistoryByPageForAdmin(@RequestBody ChatHistoryQueryRequest chatHistoryQueryRequest) {
+        ThrowUtils.throwIf(chatHistoryQueryRequest == null, ErrorCode.PARAMS_ERROR);
+        long pageNum = chatHistoryQueryRequest.getPageNum();
+        long pageSize = chatHistoryQueryRequest.getPageSize();
+        // 查询数据
+        QueryWrapper queryWrapper = chatHistoryService.getQueryWrapper(chatHistoryQueryRequest);
+        Page<ChatHistory> result = chatHistoryService.page(Page.of(pageNum, pageSize), queryWrapper);
         return ResultUtils.success(result);
     }
 
