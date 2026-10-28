@@ -15,17 +15,23 @@ import com.dn.dnaicodemotherbackend.service.ChatHistoryService;
 import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
+import dev.langchain4j.data.message.AiMessage;
+import dev.langchain4j.data.message.UserMessage;
+import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 对话历史 服务层实现。
  *
  * @author Lin_jd
  */
+@Slf4j
 @Service
 public class ChatHistoryServiceImpl extends ServiceImpl<ChatHistoryMapper, ChatHistory> implements ChatHistoryService {
 
@@ -80,6 +86,39 @@ public class ChatHistoryServiceImpl extends ServiceImpl<ChatHistoryMapper, ChatH
         QueryWrapper queryWrapper = this.getQueryWrapper(queryRequest);
         // 查询数据
         return this.page(Page.of(1, pageSize), queryWrapper);
+    }
+
+    @Override
+    public int loadChatHistoryToMemory(Long appId, MessageWindowChatMemory chatMemory, int maxCount) {
+        try {
+            // 1. 查询排除用户最新对话记录（第1条开始）
+            List<ChatHistory> chatHistoryList = this.list(QueryWrapper.create()
+                    .eq(ChatHistory::getAppId, appId)
+                    .orderBy(ChatHistory::getCreateTime, false)
+                    .limit(1, maxCount)
+            );
+            if (chatHistoryList.isEmpty()) {
+                return 0;
+            }
+            chatHistoryList = chatHistoryList.reversed();
+
+            // 2. 按照时间顺序插入到对话记忆中
+            int loadedCount = 0;
+            chatMemory.clear();
+            for (ChatHistory history : chatHistoryList) {
+                if (history.getMessageType().equals(ChatHistoryMessageTypeEnum.USER.getValue())) {
+                    chatMemory.add(UserMessage.from(history.getMessage()));
+                } else if (history.getMessageType().equals(ChatHistoryMessageTypeEnum.AI.getValue())) {
+                    chatMemory.add(AiMessage.from(history.getMessage()));
+                }
+                loadedCount++;
+            }
+            log.info("成功为 appId:{} 应用加载了 {} 条对话历史记录", appId, loadedCount);
+            return loadedCount;
+        } catch (Exception e) {
+            log.error("加载对话历史记录失败，appId:{}，error:{}", appId, e.getMessage());
+            return 0;
+        }
     }
 
     @Override

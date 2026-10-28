@@ -1,6 +1,7 @@
 package com.dn.dnaicodemotherbackend.core;
 
 import com.dn.dnaicodemotherbackend.ai.AiCodeGeneratorService;
+import com.dn.dnaicodemotherbackend.ai.AiCodeGeneratorServiceFactory;
 import com.dn.dnaicodemotherbackend.ai.model.HtmlCodeResult;
 import com.dn.dnaicodemotherbackend.ai.model.MultiFileCodeResult;
 import com.dn.dnaicodemotherbackend.core.parser.CodeParserExecutor;
@@ -26,7 +27,7 @@ import java.io.File;
 public class AiCodeGeneratorFacade {
 
     @Resource
-    private AiCodeGeneratorService aiCodeGeneratorService;
+    private AiCodeGeneratorServiceFactory aiCodeGeneratorServiceFactory;
 
     /**
      * 根据类型生成和保存应用代码
@@ -39,6 +40,8 @@ public class AiCodeGeneratorFacade {
         if (codeGenType == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数不能为空");
         }
+
+        AiCodeGeneratorService aiCodeGeneratorService = aiCodeGeneratorServiceFactory.getAiCodeGeneratorService(appId);
 
         return switch (codeGenType) {
             case HTML -> {
@@ -66,6 +69,8 @@ public class AiCodeGeneratorFacade {
         if (codeGenType == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数不能为空");
         }
+
+        AiCodeGeneratorService aiCodeGeneratorService = aiCodeGeneratorServiceFactory.getAiCodeGeneratorService(appId);
 
         return switch (codeGenType) {
             case HTML -> {

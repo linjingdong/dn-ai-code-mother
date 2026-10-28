@@ -220,7 +220,7 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App>  implements AppS
         }
 
         try {
-            chatHistoryService.removeById(appId);
+            chatHistoryService.deleteByAppId(appId);
         } catch (Exception e) {
             log.error("删除应用关联对话历史失败：{}", e.getMessage());
         }

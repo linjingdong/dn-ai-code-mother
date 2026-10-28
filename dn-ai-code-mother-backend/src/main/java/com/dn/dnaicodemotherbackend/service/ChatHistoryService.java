@@ -6,6 +6,7 @@ import com.dn.dnaicodemotherbackend.model.entity.User;
 import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.core.service.IService;
+import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 
 import java.time.LocalDateTime;
 
@@ -43,6 +44,15 @@ public interface ChatHistoryService extends IService<ChatHistory> {
      * @return 对话历史
      */
     Page<ChatHistory> listAppChatHistoryByPage(Long appId, int pageSize, LocalDateTime lastCreateTime, User loginUser);
+
+    /**
+     * 加载对话历史到对话记忆中
+     * @param appId 应用 ID
+     * @param chatMemory 对话记忆
+     * @param maxCount 最大对话历史条数
+     * @return 加载条数
+     */
+    int loadChatHistoryToMemory(Long appId, MessageWindowChatMemory chatMemory, int maxCount);
 
     /**
      * 构造查询条件
