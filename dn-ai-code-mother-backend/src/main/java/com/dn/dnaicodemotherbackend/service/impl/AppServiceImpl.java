@@ -7,6 +7,7 @@ import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import com.dn.dnaicodemotherbackend.constant.AppConstant;
 import com.dn.dnaicodemotherbackend.core.AiCodeGeneratorFacade;
+import com.dn.dnaicodemotherbackend.core.handler.StreamHandlerExecutor;
 import com.dn.dnaicodemotherbackend.exception.BusinessException;
 import com.dn.dnaicodemotherbackend.exception.ErrorCode;
 import com.dn.dnaicodemotherbackend.exception.ThrowUtils;
@@ -55,6 +56,9 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App>  implements AppS
     @Resource
     private ChatHistoryService chatHistoryService;
 
+    @Resource
+    private StreamHandlerExecutor streamHandlerExecutor;
+
     @Override
     public Flux<String> chatToGenCode(Long appId, String message, User loginUser) {
         // 1. 校验参数
@@ -85,17 +89,7 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App>  implements AppS
         // 6. 调用 AI 生成应用代码
         Flux<String> contentStream = aiCodeGeneratorFacade.generateAndSaveCodeStream(message, codeGenTypeEnum, appId);
 
-        StringBuilder aiResponseBuilder = new StringBuilder();
-        return contentStream.map(chuck -> {
-            aiResponseBuilder.append(chuck);
-            return chuck;
-        }).doOnComplete(() -> {
-            String aiResponse = aiResponseBuilder.toString();
-            chatHistoryService.addChatHistory(appId, aiResponse, ChatHistoryMessageTypeEnum.AI.getValue(), loginUser.getId());
-        }).doOnError(error -> {
-            String errorMessage = String.format("AI 响应错误：" + error.getMessage());
-            chatHistoryService.addChatHistory(appId, errorMessage, ChatHistoryMessageTypeEnum.AI.getValue(), loginUser.getId());
-        });
+        return streamHandlerExecutor.doExecute(contentStream, chatHistoryService, appId, loginUser, codeGenTypeEnum);
     }
 
     @Override

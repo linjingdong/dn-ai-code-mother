@@ -1,17 +1,26 @@
 package com.dn.dnaicodemotherbackend.core;
 
+import cn.hutool.json.JSONUtil;
 import com.dn.dnaicodemotherbackend.ai.AiCodeGeneratorService;
 import com.dn.dnaicodemotherbackend.ai.AiCodeGeneratorServiceFactory;
 import com.dn.dnaicodemotherbackend.ai.model.HtmlCodeResult;
 import com.dn.dnaicodemotherbackend.ai.model.MultiFileCodeResult;
+import com.dn.dnaicodemotherbackend.ai.model.message.AiResponseMessage;
+import com.dn.dnaicodemotherbackend.ai.model.message.ToolExecutedMessage;
+import com.dn.dnaicodemotherbackend.ai.model.message.ToolRequestMessage;
 import com.dn.dnaicodemotherbackend.core.parser.CodeParserExecutor;
 import com.dn.dnaicodemotherbackend.core.saver.CodeFileSaverExecutor;
 import com.dn.dnaicodemotherbackend.exception.BusinessException;
 import com.dn.dnaicodemotherbackend.exception.ErrorCode;
 import com.dn.dnaicodemotherbackend.model.enums.CodeGenTypeEnum;
+import dev.langchain4j.model.chat.response.ChatResponse;
+import dev.langchain4j.service.TokenStream;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springdoc.core.service.GenericParameterService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.View;
 import reactor.core.publisher.Flux;
 
 import java.io.File;
@@ -28,6 +37,9 @@ public class AiCodeGeneratorFacade {
 
     @Resource
     private AiCodeGeneratorServiceFactory aiCodeGeneratorServiceFactory;
+    @Autowired
+    private GenericParameterService parameterBuilder;
+    private View error;
 
     /**
      * 根据类型生成和保存应用代码
@@ -82,13 +94,45 @@ public class AiCodeGeneratorFacade {
                 yield processCodeStream(codeStream, codeGenType, appId);
             }
             case VUE_PROJECT -> {
-                Flux<String> codeStream = aiCodeGeneratorService.generateVueProjectCode(appId, userMessage);
-                yield processCodeStream(codeStream, CodeGenTypeEnum.MULTI_FILE, appId);
+                TokenStream codeStream = aiCodeGeneratorService.generateVueProjectCode(appId, userMessage);
+                yield processTokenStream(codeStream);
             }
             default -> {
                 throw new BusinessException(ErrorCode.SYSTEM_ERROR, String.format("不支持的生成类型：%s", codeGenType.getValue()));
             }
         };
+    }
+
+    /**
+     * 将 TokenStream 转换为 Flux<String>, 并传递工具调用信息
+     * @param tokenStream TokenStream 对象
+     * @return Flux<String> 对象
+     */
+    private Flux<String> processTokenStream(TokenStream tokenStream) {
+        return Flux.create(sink -> {
+                    tokenStream
+                            .onPartialResponse((String partialResponse) -> {
+                                AiResponseMessage aiResponseMessage = new AiResponseMessage(partialResponse);
+                                sink.next(JSONUtil.toJsonStr(aiResponseMessage));
+                            })
+                            .onPartialToolExecutionRequest((index, toolExecutionRequest) -> {
+                                ToolRequestMessage toolRequestMessage = new ToolRequestMessage(toolExecutionRequest);
+                                sink.next(JSONUtil.toJsonStr(toolRequestMessage));
+                            })
+                            .onToolExecuted(toolExecution -> {
+                                ToolExecutedMessage toolExecutedMessage = new ToolExecutedMessage(toolExecution);
+                                sink.next(JSONUtil.toJsonStr(toolExecutedMessage));
+                            })
+                            .onCompleteResponse((ChatResponse response) -> {
+                                sink.complete();
+                            })
+                            .onError((Throwable error) -> {
+                                error.printStackTrace();
+                                sink.error(error);
+                            })
+                            .start();
+                }
+        );
     }
 
     /**
