@@ -2,7 +2,9 @@ package com.dn.dnaicodemotherbackend.ai;
 
 import com.dn.dnaicodemotherbackend.ai.model.HtmlCodeResult;
 import com.dn.dnaicodemotherbackend.ai.model.MultiFileCodeResult;
+import dev.langchain4j.service.MemoryId;
 import dev.langchain4j.service.SystemMessage;
+import dev.langchain4j.service.UserMessage;
 import reactor.core.publisher.Flux;
 
 /**
@@ -43,4 +45,13 @@ public interface AiCodeGeneratorService {
      */
     @SystemMessage(fromResource = "prompt/codegen-multi-file-system-prompt.txt")
     Flux<String> generateMultiFileCodeStream(String usePrompt);
+
+    /**
+     * 流式生成 vue 项目代码
+     * @param appId 应用 ID
+     * @param userPrompt 用户提示词
+     * @return 流式响应
+     */
+    @SystemMessage(fromResource = "prompt/codegen-vue-project-system-prompt.txt")
+    Flux<String> generateVueProjectCode(@MemoryId long appId, @UserMessage String userPrompt);
 }
