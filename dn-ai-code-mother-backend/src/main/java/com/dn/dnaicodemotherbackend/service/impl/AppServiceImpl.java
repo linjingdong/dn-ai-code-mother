@@ -22,6 +22,7 @@ import com.dn.dnaicodemotherbackend.model.vo.AppVO;
 import com.dn.dnaicodemotherbackend.model.vo.UserVO;
 import com.dn.dnaicodemotherbackend.service.AppService;
 import com.dn.dnaicodemotherbackend.service.ChatHistoryService;
+import com.dn.dnaicodemotherbackend.service.ScreenshotService;
 import com.dn.dnaicodemotherbackend.service.UserService;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
@@ -62,6 +63,9 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App>  implements AppS
 
     @Resource
     private VueProjectBuilder vueProjectBuilder;
+
+    @Resource
+    private ScreenshotService screenshotService;
 
     @Override
     public Flux<String> chatToGenCode(Long appId, String message, User loginUser) {
@@ -152,8 +156,26 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App>  implements AppS
         updateApp.setDeployedTime(LocalDateTime.now());
         boolean updateResult = this.updateById(updateApp);
         ThrowUtils.throwIf(!updateResult, ErrorCode.OPERATION_ERROR, "更新应用部署信息失败");
+        String deployUrl = String.format("%s/%s/", AppConstant.CODE_DEPLOY_HOST, deployKey);
+        generateAppScreenshotAsync(appId, deployUrl);
+        return deployUrl;
+    }
 
-        return String.format("%s/%s/", AppConstant.CODE_DEPLOY_HOST, deployKey);
+    /**
+     * 异步生成应用封面截图
+     * @param appId 应用 id
+     * @param appUrl 网页 URL
+     */
+    @Override
+    public void generateAppScreenshotAsync(Long appId, String appUrl) {
+        Thread.startVirtualThread(() -> {
+            String coverUrl = screenshotService.generateAndSaveScreenshot(appUrl);
+            App updateApp = new App();
+            updateApp.setId(appId);
+            updateApp.setCover(coverUrl);
+            boolean updateResult = this.updateById(updateApp);
+            ThrowUtils.throwIf(!updateResult, ErrorCode.OPERATION_ERROR, "更新应用封面字段失败");
+        });
     }
 
     @Override
