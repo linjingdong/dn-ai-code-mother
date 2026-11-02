@@ -5,6 +5,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
+import com.dn.dnaicodemotherbackend.ai.AiCodeGenTypeRoutingService;
 import com.dn.dnaicodemotherbackend.constant.AppConstant;
 import com.dn.dnaicodemotherbackend.core.AiCodeGeneratorFacade;
 import com.dn.dnaicodemotherbackend.core.builder.VueProjectBuilder;
@@ -66,6 +67,30 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App>  implements AppS
 
     @Resource
     private ScreenshotService screenshotService;
+
+    @Resource
+    private AiCodeGenTypeRoutingService aiCodeGenTypeRoutingService;
+
+    @Override
+    public Long createApp(String initPrompt, User loginUser) {
+        // 校验参数
+        ThrowUtils.throwIf(StrUtil.isBlank(initPrompt), ErrorCode.PARAMS_ERROR, "初始化 prompt 不能为空");
+        // 构造入库对象
+        App app = new App();
+        app.setInitPrompt(initPrompt);
+        app.setUserId(loginUser.getId());
+        // 应用名称暂时为 initPrompt 前 12 位
+        app.setAppName(initPrompt.substring(0, Math.min(initPrompt.length(), 12)));
+        // 智能路由代码生成类型
+        CodeGenTypeEnum codeGenTypeEnum = aiCodeGenTypeRoutingService.routeCodeGenType(initPrompt);
+        app.setCodeGenType(codeGenTypeEnum.getValue());
+        // 插入数据库
+        boolean result = this.save(app);
+        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+
+        log.info("应用创建成功，ID：{}，类型：{}", app.getId(), codeGenTypeEnum.getValue());
+        return app.getId();
+    }
 
     @Override
     public Flux<String> chatToGenCode(Long appId, String message, User loginUser) {

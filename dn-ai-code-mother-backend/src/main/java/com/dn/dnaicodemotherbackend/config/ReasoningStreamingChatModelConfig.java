@@ -23,14 +23,16 @@ public class ReasoningStreamingChatModelConfig {
 
     @Bean
     public StreamingChatModel reasoningStreamingChatModel() {
-        final String modelName = "deepseek-v4.1-flash";
-        final int maxTokens = 16384;
+        final String modelName = "minimax-m3.1-flash";
+        final int maxTokens = 8192;
 
         return OpenAiStreamingChatModel.builder()
                 .baseUrl(baseUrl)
                 .apiKey(apiKey)
                 .modelName(modelName)
                 .maxTokens(maxTokens)
+                .logRequests(true)
+                .logResponses(true)
                 .build();
     }
 }

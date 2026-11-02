@@ -1,6 +1,6 @@
 spring:
   application:
-    name: yu-ai-code-mother-backend
+    name: dn-ai-code-mother-backend
   # mysql
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver

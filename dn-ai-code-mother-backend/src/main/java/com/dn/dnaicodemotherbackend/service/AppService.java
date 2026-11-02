@@ -6,6 +6,7 @@ import com.dn.dnaicodemotherbackend.model.entity.User;
 import com.dn.dnaicodemotherbackend.model.vo.AppVO;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.core.service.IService;
+import jakarta.servlet.http.HttpServletRequest;
 import reactor.core.publisher.Flux;
 
 import java.util.List;
@@ -16,6 +17,14 @@ import java.util.List;
  * @author Lin_jd
  */
 public interface AppService extends IService<App> {
+
+    /**
+     * 创建应用
+     * @param initMessage 初始消息
+     * @param loginUser 登录用户
+     * @return 应用 id
+     */
+    Long createApp(String initMessage, User loginUser);
 
     /**
      * 通过对话生成应用代码

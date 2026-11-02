@@ -4,6 +4,9 @@
     <div class="header-bar">
       <div class="header-left">
         <h1 class="app-name">{{ appInfo?.appName || '网站生成器' }}</h1>
+        <a-tag v-if="appInfo?.codeGenType" color="blue" class="code-gen-type-tag">
+          {{ formatCodeGenType(appInfo.codeGenType) }}
+        </a-tag>
       </div>
       <div class="header-right">
         <a-button type="default" @click="showAppDetail">
@@ -29,7 +32,7 @@
           <template #icon>
             <CloudUploadOutlined />
           </template>
-          部署按钮
+          部署
         </a-button>
       </div>
     </div>
@@ -167,7 +170,7 @@ import {
   deleteApp as deleteAppApi,
 } from '@/api/appController'
 
-import { CodeGenTypeEnum } from '@/utils/codeGenTypes'
+import { CodeGenTypeEnum, formatCodeGenType } from '@/utils/codeGenTypes'
 import request from '@/request'
 
 import MarkdownRenderer from '@/components/MarkdownRenderer.vue'
@@ -828,6 +831,10 @@ onUnmounted(() => {
   width: 100%;
   height: 100%;
   border: none;
+}
+
+.code-gen-type-tag {
+  font-size: 12px;
 }
 
 /* 响应式设计 */

@@ -145,7 +145,9 @@ public class AiCodeGeneratorFacade {
     private Flux<String> processCodeStream(Flux<String> codeStream, CodeGenTypeEnum codeGenTypeEnum, Long appId) {
         StringBuilder stringBuilder = new StringBuilder();
         return codeStream
-                .doOnNext(stringBuilder::append)
+                .doOnNext(chuck -> {
+                    stringBuilder.append(chuck);
+                })
                 .doOnComplete(() -> {
                     try {
                         String completeContent = stringBuilder.toString();
