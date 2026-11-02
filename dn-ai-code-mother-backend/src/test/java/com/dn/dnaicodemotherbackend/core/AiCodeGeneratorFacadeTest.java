@@ -30,11 +30,13 @@ class AiCodeGeneratorFacadeTest {
 
     @Test
     void generateAndSaveCodeStream() {
-        Flux<String> codeStream = aiCodeGeneratorFacade.generateAndSaveCodeStream("生成一个好看的登录页面，总代码量不超过 50 行", CodeGenTypeEnum.MULTI_FILE, IdUtil.getSnowflakeNextId());
+        Long appId = IdUtil.getSnowflakeNextId();
+        Flux<String> codeStream = aiCodeGeneratorFacade.generateAndSaveCodeStream("生成一个好看的登录页面，总代码量不超过 50 行", CodeGenTypeEnum.MULTI_FILE, appId);
         // 阻塞等待所有数据收集完成
         List<String> result = codeStream.collectList().block();
         // 验证结果
         Assertions.assertNotNull(result);
+        Assertions.assertNotNull(appId);
         String completeContent = String.join("", result);
         Assertions.assertNotNull(completeContent);
     }
