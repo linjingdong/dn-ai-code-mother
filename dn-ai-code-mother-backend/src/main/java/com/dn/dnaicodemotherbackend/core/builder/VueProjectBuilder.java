@@ -88,7 +88,7 @@ public class VueProjectBuilder {
      * @return 布尔值
      */
     private boolean executeNpmBuild(File projectDir) {
-        log.info("执行 npm build ...");
+        log.info("执行 npm run build ...");
         String command = String.format("%s run build", buildCommand("npm"));
         return executeCommand(projectDir, command, 180);
     }
