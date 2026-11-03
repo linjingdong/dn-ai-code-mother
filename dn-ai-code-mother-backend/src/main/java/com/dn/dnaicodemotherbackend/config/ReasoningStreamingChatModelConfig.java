@@ -23,7 +23,7 @@ public class ReasoningStreamingChatModelConfig {
 
     @Bean
     public StreamingChatModel reasoningStreamingChatModel() {
-        final String modelName = "minimax-m3.1-flash";
+        final String modelName = "gpt-6-luna";
         final int maxTokens = 8192;
 
         return OpenAiStreamingChatModel.builder()
