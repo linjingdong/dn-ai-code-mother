@@ -2,8 +2,10 @@ package com.dn.dnaicodemotherbackend.langgragh4j;
 
 import com.dn.dnaicodemotherbackend.exception.BusinessException;
 import com.dn.dnaicodemotherbackend.exception.ErrorCode;
+import com.dn.dnaicodemotherbackend.langgragh4j.model.QualityResult;
 import com.dn.dnaicodemotherbackend.langgragh4j.node.*;
 import com.dn.dnaicodemotherbackend.langgragh4j.state.WorkflowContext;
+import com.dn.dnaicodemotherbackend.model.enums.CodeGenTypeEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.bsc.langgraph4j.CompiledGraph;
 import org.bsc.langgraph4j.GraphRepresentation;
@@ -16,6 +18,7 @@ import java.util.Map;
 
 import static org.bsc.langgraph4j.StateGraph.END;
 import static org.bsc.langgraph4j.StateGraph.START;
+import static org.bsc.langgraph4j.action.AsyncEdgeAction.edge_async;
 
 @Slf4j
 public class CodeGenWorkflow {
@@ -30,6 +33,7 @@ public class CodeGenWorkflow {
                     .addNode("image_collector", ImageCollectorNode.create())
                     .addNode("prompt_enhancer", PromptEnhancerNode.create())
                     .addNode("router", RouterNode.create())
+                    .addNode("code_quality_check", CodeQualityCheckNode.create())
                     .addNode("code_generator", CodeGeneratorNode.create())
                     .addNode("project_builder", ProjectBuilderNode.create())
 
@@ -38,7 +42,14 @@ public class CodeGenWorkflow {
                     .addEdge("image_collector", "prompt_enhancer")
                     .addEdge("prompt_enhancer", "router")
                     .addEdge("router", "code_generator")
-                    .addEdge("code_generator", "project_builder")
+                    .addEdge("code_generator", "code_quality_check")
+                    .addConditionalEdges("code_quality_check",
+                            edge_async(this::routeAfterQualityCheck),
+                            Map.of(
+                                    "build", "project_builder",
+                                    "skip", END,
+                                    "fail", "code_generator"
+                            ))
                     .addEdge("project_builder", END)
 
                     // 编译工作流
@@ -79,5 +90,28 @@ public class CodeGenWorkflow {
         }
         log.info("代码生成工作流执行完成！");
         return finalContext;
+    }
+
+    private String routeAfterQualityCheck(MessagesState<String> state) {
+        WorkflowContext context = WorkflowContext.getContext(state);
+        QualityResult qualityResult = context.getQualityResult();
+        // 如果质检失败，重新生成代码
+        if (qualityResult == null || !qualityResult.getIsValid()) {
+            log.error("代码质检失败，需要重新生成代码");
+            return "fail";
+        }
+        // 质检通过，使用原有的构建路由逻辑
+        log.info("代码质检通过，继续后续流程");
+        return routeBuildOrSkip(state);
+    }
+
+
+    private String routeBuildOrSkip(MessagesState<String> state) {
+        WorkflowContext context = WorkflowContext.getContext(state);
+        CodeGenTypeEnum generationType = context.getGenerationType();
+        if (generationType == CodeGenTypeEnum.VUE_PROJECT) {
+            return "build";
+        }
+        return "skip";
     }
 }
