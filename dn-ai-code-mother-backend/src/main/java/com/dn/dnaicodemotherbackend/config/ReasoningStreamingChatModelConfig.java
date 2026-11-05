@@ -23,7 +23,7 @@ public class ReasoningStreamingChatModelConfig {
 
     @Bean
     public StreamingChatModel reasoningStreamingChatModel() {
-        final String modelName = "gpt-6-luna";
+        final String modelName = "deepseek-v4.1-flash-1017";
         final int maxTokens = 8192;
 
         return OpenAiStreamingChatModel.builder()
