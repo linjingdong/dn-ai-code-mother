@@ -1,8 +1,8 @@
 package com.dn.dnaicodemotherbackend.ai;
 
+import com.dn.dnaicodemotherbackend.langgragh4j.utils.SpringContextUtil;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.service.AiServices;
-import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
@@ -18,8 +18,16 @@ import org.springframework.stereotype.Component;
 @Component
 public class AiCodeGenTypeRoutingServiceFactory {
 
-    @Resource
-    private ChatModel chatModel;
+    /**
+     * 创建 AI 代码生成类型路由服务实例
+     * @return AI 代码生成类型路由服务
+     */
+    public AiCodeGenTypeRoutingService createAiCodeGenTypeRoutingService() {
+        ChatModel routingChatModel = SpringContextUtil.getBean("routingChatModelPrototype", ChatModel.class);
+        return AiServices.builder(AiCodeGenTypeRoutingService.class)
+                .chatModel(routingChatModel)
+                .build();
+    }
 
     /**
      * 创建 AI 代码生成类型路由服务
@@ -27,8 +35,6 @@ public class AiCodeGenTypeRoutingServiceFactory {
      */
     @Bean
     public AiCodeGenTypeRoutingService aiCodeGenTypeRoutingService() {
-        return AiServices.builder(AiCodeGenTypeRoutingService.class)
-                .chatModel(chatModel)
-                .build();
+        return createAiCodeGenTypeRoutingService();
     }
 }

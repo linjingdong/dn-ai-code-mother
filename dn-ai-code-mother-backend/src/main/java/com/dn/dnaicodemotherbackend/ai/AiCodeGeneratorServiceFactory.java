@@ -3,6 +3,7 @@ package com.dn.dnaicodemotherbackend.ai;
 import com.dn.dnaicodemotherbackend.ai.tools.ToolManager;
 import com.dn.dnaicodemotherbackend.exception.BusinessException;
 import com.dn.dnaicodemotherbackend.exception.ErrorCode;
+import com.dn.dnaicodemotherbackend.langgragh4j.utils.SpringContextUtil;
 import com.dn.dnaicodemotherbackend.model.enums.CodeGenTypeEnum;
 import com.dn.dnaicodemotherbackend.service.ChatHistoryService;
 import com.github.benmanes.caffeine.cache.Cache;
@@ -29,14 +30,8 @@ import java.time.Duration;
 @Slf4j
 public class AiCodeGeneratorServiceFactory {
 
-    @Resource
+    @Resource(name = "openAiChatModel")
     private ChatModel chatModel;
-
-    @Resource
-    private StreamingChatModel openAiStreamingChatModel;
-
-    @Resource
-    private StreamingChatModel reasoningStreamingChatModel;
 
     @Resource
     private RedisChatMemoryStore redisChatMemoryStore;
@@ -87,7 +82,10 @@ public class AiCodeGeneratorServiceFactory {
 
         // 根据代码生成类型选择不同的模型配置
         return switch (codeGenTypeEnum) {
-            case VUE_PROJECT -> AiServices.builder(AiCodeGeneratorService.class)
+            case VUE_PROJECT -> {
+                // 使用多例模式的 StreamingChatModel 解决并发问题
+                StreamingChatModel reasoningStreamingChatModel = SpringContextUtil.getBean("reasoningStreamingChatModelPrototype", StreamingChatModel.class);
+                yield AiServices.builder(AiCodeGeneratorService.class)
                     .streamingChatModel(reasoningStreamingChatModel)
                     .chatMemoryProvider(memoryId -> chatMemory)
                     .tools(toolManager.getAllTools())
@@ -95,11 +93,16 @@ public class AiCodeGeneratorServiceFactory {
                             toolExecutionRequest, "Error: there is no tool called" + toolExecutionRequest.name()
                     ))
                     .build();
-            case HTML, MULTI_FILE -> AiServices.builder(AiCodeGeneratorService.class)
+            }
+            case HTML, MULTI_FILE -> {
+                // 使用多例模式的 StreamingChatModel 解决并发问题
+                StreamingChatModel openAiStreamingChatModel = SpringContextUtil.getBean("streamingChatModelPrototype", StreamingChatModel.class);
+                yield AiServices.builder(AiCodeGeneratorService.class)
                     .chatModel(chatModel)
                     .streamingChatModel(openAiStreamingChatModel)
                     .chatMemory(chatMemory)
                     .build();
+            }
 
             default -> {
                 throw new BusinessException(ErrorCode.SYSTEM_ERROR, "不支持的代码生成类型");

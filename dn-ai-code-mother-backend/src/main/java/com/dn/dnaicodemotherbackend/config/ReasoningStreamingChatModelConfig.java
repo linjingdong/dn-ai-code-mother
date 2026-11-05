@@ -6,6 +6,9 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
+
+import java.util.Map;
 
 /**
  * @author Lin_jd
@@ -13,7 +16,7 @@ import org.springframework.context.annotation.Configuration;
  * @since 2026/10/28 23:20
  **/
 @Configuration
-@ConfigurationProperties(prefix = "langchain4j.open-ai.chat-model")
+@ConfigurationProperties(prefix = "langchain4j.open-ai.reasoning-streaming-chat-model")
 @Data
 public class ReasoningStreamingChatModelConfig {
 
@@ -21,18 +24,29 @@ public class ReasoningStreamingChatModelConfig {
 
     private String apiKey;
 
-    @Bean
-    public StreamingChatModel reasoningStreamingChatModel() {
-        final String modelName = "deepseek-v4.1-flash-1017";
-        final int maxTokens = 8192;
+    private String modelName;
 
+    private Integer maxTokens;
+
+    private Double temperature;
+
+    private Boolean logRequests = false;
+
+    private Boolean logResponses = false;
+
+    private String reasoningEffort;
+
+    @Bean
+    @Scope("prototype")
+    public StreamingChatModel reasoningStreamingChatModelPrototype() {
         return OpenAiStreamingChatModel.builder()
-                .baseUrl(baseUrl)
                 .apiKey(apiKey)
+                .baseUrl(baseUrl)
                 .modelName(modelName)
                 .maxTokens(maxTokens)
-                .logRequests(true)
-                .logResponses(true)
+                .temperature(temperature)
+                .logRequests(logRequests)
+                .logResponses(logResponses)
                 .build();
     }
 }

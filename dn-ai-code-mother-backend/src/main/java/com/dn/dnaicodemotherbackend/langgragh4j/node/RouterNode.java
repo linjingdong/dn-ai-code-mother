@@ -1,6 +1,7 @@
 package com.dn.dnaicodemotherbackend.langgragh4j.node;
 
 import com.dn.dnaicodemotherbackend.ai.AiCodeGenTypeRoutingService;
+import com.dn.dnaicodemotherbackend.ai.AiCodeGenTypeRoutingServiceFactory;
 import com.dn.dnaicodemotherbackend.langgragh4j.state.WorkflowContext;
 import com.dn.dnaicodemotherbackend.langgragh4j.utils.SpringContextUtil;
 import com.dn.dnaicodemotherbackend.model.enums.CodeGenTypeEnum;
@@ -21,7 +22,8 @@ public class RouterNode {
             CodeGenTypeEnum generationType;
             try {
                 // 获取AI路由服务
-                AiCodeGenTypeRoutingService routingService = SpringContextUtil.getBean(AiCodeGenTypeRoutingService.class);
+                AiCodeGenTypeRoutingServiceFactory routingServiceFactory = SpringContextUtil.getBean(AiCodeGenTypeRoutingServiceFactory.class);
+                AiCodeGenTypeRoutingService routingService = routingServiceFactory.createAiCodeGenTypeRoutingService();
                 // 根据原始提示词进行智能路由
                 generationType = routingService.routeCodeGenType(context.getOriginalPrompt());
                 log.info("AI智能路由完成，选择类型: {} ({})", generationType.getValue(), generationType.getText());

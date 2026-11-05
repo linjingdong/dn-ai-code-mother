@@ -1,11 +1,8 @@
-package com.dn.dnaicodemotherbackend.langgragh4j;
+package com.dn.dnaicodemotherbackend.langgragh4j.ai;
 
-import com.dn.dnaicodemotherbackend.langgragh4j.ai.ImageCollectionPlanService;
-import com.dn.dnaicodemotherbackend.langgragh4j.model.ImageCollectionPlan;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.service.AiServices;
 import jakarta.annotation.Resource;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -17,7 +14,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class ImageCollectionPlanServiceFactory {
 
-    @Resource
+    @Resource(name = "openAiChatModel")
     private ChatModel chatModel;
 
     @Bean
