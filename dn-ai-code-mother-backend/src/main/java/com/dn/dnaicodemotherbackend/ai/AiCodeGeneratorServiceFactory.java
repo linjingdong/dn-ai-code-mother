@@ -90,10 +90,10 @@ public class AiCodeGeneratorServiceFactory {
                     .streamingChatModel(reasoningStreamingChatModel)
                     .chatMemoryProvider(memoryId -> chatMemory)
                     .tools(toolManager.getAllTools())
-                        .inputGuardrails(new PromptSafetyInputGuardrail())
                     .hallucinatedToolNameStrategy(toolExecutionRequest -> ToolExecutionResultMessage.from(
                             toolExecutionRequest, "Error: there is no tool called" + toolExecutionRequest.name()
                     ))
+                        .inputGuardrails(new PromptSafetyInputGuardrail())
                     .build();
             }
             case HTML, MULTI_FILE -> {
@@ -103,6 +103,7 @@ public class AiCodeGeneratorServiceFactory {
                     .chatModel(chatModel)
                     .streamingChatModel(openAiStreamingChatModel)
                     .chatMemory(chatMemory)
+                        .inputGuardrails(new PromptSafetyInputGuardrail())
                     .build();
             }
 
