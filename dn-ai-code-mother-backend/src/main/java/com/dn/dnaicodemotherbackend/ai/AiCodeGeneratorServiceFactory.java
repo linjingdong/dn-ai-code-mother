@@ -1,5 +1,6 @@
 package com.dn.dnaicodemotherbackend.ai;
 
+import com.dn.dnaicodemotherbackend.ai.guardrail.PromptSafetyInputGuardrail;
 import com.dn.dnaicodemotherbackend.ai.tools.ToolManager;
 import com.dn.dnaicodemotherbackend.exception.BusinessException;
 import com.dn.dnaicodemotherbackend.exception.ErrorCode;
@@ -89,6 +90,7 @@ public class AiCodeGeneratorServiceFactory {
                     .streamingChatModel(reasoningStreamingChatModel)
                     .chatMemoryProvider(memoryId -> chatMemory)
                     .tools(toolManager.getAllTools())
+                        .inputGuardrails(new PromptSafetyInputGuardrail())
                     .hallucinatedToolNameStrategy(toolExecutionRequest -> ToolExecutionResultMessage.from(
                             toolExecutionRequest, "Error: there is no tool called" + toolExecutionRequest.name()
                     ))

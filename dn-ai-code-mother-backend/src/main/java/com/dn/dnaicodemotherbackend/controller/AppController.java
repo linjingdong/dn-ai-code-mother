@@ -16,6 +16,8 @@ import com.dn.dnaicodemotherbackend.model.dto.app.*;
 import com.dn.dnaicodemotherbackend.model.entity.App;
 import com.dn.dnaicodemotherbackend.model.entity.User;
 import com.dn.dnaicodemotherbackend.model.vo.AppVO;
+import com.dn.dnaicodemotherbackend.ralimiter.annotation.RateLimit;
+import com.dn.dnaicodemotherbackend.ralimiter.enums.RateLimitType;
 import com.dn.dnaicodemotherbackend.service.AppService;
 import com.dn.dnaicodemotherbackend.service.ProjectDownloadService;
 import com.dn.dnaicodemotherbackend.service.UserService;
@@ -61,6 +63,7 @@ public class AppController {
      * @return 响应结果
      */
     @GetMapping(value = "/chat/gen/code", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @RateLimit(limitType = RateLimitType.USER, rate = 5, rateInterval = 60, message = "AI 对话请求过于频繁，请稍后重试")
     public Flux<ServerSentEvent<String>> chatToGenCode(@RequestParam Long appId, @RequestParam String message, HttpServletRequest request) {
         ThrowUtils.throwIf(appId == null || appId <= 0, ErrorCode.PARAMS_ERROR, "应用参数错误");
         ThrowUtils.throwIf(StrUtil.isBlank(message), ErrorCode.PARAMS_ERROR, "用户消息不能为空");
