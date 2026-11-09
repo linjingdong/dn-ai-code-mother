@@ -22,6 +22,8 @@ import com.dn.dnaicodemotherbackend.model.enums.ChatHistoryMessageTypeEnum;
 import com.dn.dnaicodemotherbackend.model.enums.CodeGenTypeEnum;
 import com.dn.dnaicodemotherbackend.model.vo.AppVO;
 import com.dn.dnaicodemotherbackend.model.vo.UserVO;
+import com.dn.dnaicodemotherbackend.monitor.MonitorContext;
+import com.dn.dnaicodemotherbackend.monitor.MonitorContextHolder;
 import com.dn.dnaicodemotherbackend.service.AppService;
 import com.dn.dnaicodemotherbackend.service.ChatHistoryService;
 import com.dn.dnaicodemotherbackend.service.ScreenshotService;
@@ -121,10 +123,22 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App>  implements AppS
         // 5. 通过校验后，添加用户消息到消息历史
         chatHistoryService.addChatHistory(appId, message, ChatHistoryMessageTypeEnum.USER.getValue(), loginUser.getId());
 
-        // 6. 调用 AI 生成应用代码
+        // 6. 设置监控上下文
+        MonitorContextHolder.setContext(
+                MonitorContext.builder()
+                        .appId(appId.toString())
+                        .userId(loginUser.getId().toString())
+                        .build()
+        );
+
+        // 7. 调用 AI 生成应用代码（流式）
         Flux<String> contentStream = aiCodeGeneratorFacade.generateAndSaveCodeStream(message, codeGenTypeEnum, appId);
 
-        return streamHandlerExecutor.doExecute(contentStream, chatHistoryService, appId, loginUser, codeGenTypeEnum);
+        // 8. 收集 AI 的响应并在完成后记录到对话历史
+        return streamHandlerExecutor.doExecute(contentStream, chatHistoryService, appId, loginUser, codeGenTypeEnum)
+                .doFinally(signalType -> {
+                    MonitorContextHolder.clearContext(); // 无论成功/失败/取消，结束时清理流
+                });
     }
 
     @Override
