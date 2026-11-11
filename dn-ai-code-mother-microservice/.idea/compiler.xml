@@ -6,13 +6,26 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="dn-ai-code-common" />
+        <module name="dn-ai-code-ai" />
         <module name="dn-ai-code-client" />
         <module name="dn-ai-code-app" />
         <module name="dn-ai-code-user" />
+        <module name="dn-ai-code-screenshot" />
         <module name="dn-ai-code-model" />
-        <module name="dn-ai-code-common" />
-        <module name="dn-ai-code-ai" />
       </profile>
     </annotationProcessing>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="dn-ai-code-ai" options="-parameters" />
+      <module name="dn-ai-code-app" options="-parameters" />
+      <module name="dn-ai-code-client" options="-parameters" />
+      <module name="dn-ai-code-common" options="-parameters" />
+      <module name="dn-ai-code-model" options="-parameters" />
+      <module name="dn-ai-code-mother-microservice" options="-parameters" />
+      <module name="dn-ai-code-screenshot" options="-parameters" />
+      <module name="dn-ai-code-user" options="-parameters" />
+    </option>
   </component>
 </project>
