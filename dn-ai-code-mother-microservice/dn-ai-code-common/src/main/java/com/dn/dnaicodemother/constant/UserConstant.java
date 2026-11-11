@@ -1,4 +1,4 @@
-package com.dn.dnaicodemotherbackend.constant;
+package com.dn.dnaicodemother.constant;
 
 public interface UserConstant {
 

@@ -1,6 +1,6 @@
-package com.dn.dnaicodemotherbackend.manage;
+package com.dn.dnaicodemother.manage;
 
-import com.dn.dnaicodemotherbackend.config.CosClientConfig;
+import com.dn.dnaicodemother.config.CosClientConfig;
 import com.qcloud.cos.COSClient;
 import com.qcloud.cos.model.PutObjectRequest;
 import com.qcloud.cos.model.PutObjectResult;

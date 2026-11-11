@@ -1,4 +1,4 @@
-package com.dn.dnaicodemotherbackend.common;
+package com.dn.dnaicodemother.common;
 
 import lombok.Data;
 

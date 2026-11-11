@@ -1,16 +1,16 @@
-package com.dn.dnaicodemotherbackend.innerservice;
+package com.dn.dnaicodemother.innerservice;
 
-import com.dn.dnaicodemotherbackend.exception.BusinessException;
-import com.dn.dnaicodemotherbackend.exception.ErrorCode;
-import com.dn.dnaicodemotherbackend.model.entity.User;
-import com.dn.dnaicodemotherbackend.model.vo.UserVO;
+import com.dn.dnaicodemother.exception.BusinessException;
+import com.dn.dnaicodemother.exception.ErrorCode;
+import com.dn.dnaicodemother.model.entity.User;
+import com.dn.dnaicodemother.model.vo.UserVO;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 
-import static com.dn.dnaicodemotherbackend.constant.UserConstant.USER_LOGIN_STATE;
+import static com.dn.dnaicodemother.constant.UserConstant.USER_LOGIN_STATE;
 
 /**
  * 用户内部接口

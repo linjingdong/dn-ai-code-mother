@@ -1,4 +1,4 @@
-package com.dn.dnaicodemotherbackend.utils;
+package com.dn.dnaicodemother.utils;
 
 import cn.hutool.crypto.digest.DigestUtil;
 import cn.hutool.json.JSONUtil;

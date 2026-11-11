@@ -1,6 +1,6 @@
-package com.dn.dnaicodemotherbackend.common;
+package com.dn.dnaicodemother.common;
 
-import com.dn.dnaicodemotherbackend.exception.ErrorCode;
+import com.dn.dnaicodemother.exception.ErrorCode;
 
 /**
  * @author Lin_jd

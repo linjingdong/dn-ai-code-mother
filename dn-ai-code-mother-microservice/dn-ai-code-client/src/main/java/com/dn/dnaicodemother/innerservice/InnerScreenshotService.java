@@ -1,4 +1,4 @@
-package com.dn.dnaicodemotherbackend.innerservice;
+package com.dn.dnaicodemother.innerservice;
 
 /**
  * @author Lin_jd

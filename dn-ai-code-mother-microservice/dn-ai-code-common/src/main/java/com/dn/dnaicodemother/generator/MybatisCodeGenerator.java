@@ -1,4 +1,4 @@
-package com.dn.dnaicodemotherbackend.generator;
+package com.dn.dnaicodemother.generator;
 
 import cn.hutool.core.lang.Dict;
 import cn.hutool.setting.yaml.YamlUtil;

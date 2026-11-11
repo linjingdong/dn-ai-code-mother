@@ -1,4 +1,4 @@
-package com.dn.dnaicodemotherbackend.config;
+package com.dn.dnaicodemother.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;

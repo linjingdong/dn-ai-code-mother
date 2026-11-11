@@ -1,4 +1,4 @@
-package com.dn.dnaicodemotherbackend.config;
+package com.dn.dnaicodemother.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;

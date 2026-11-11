@@ -1,4 +1,4 @@
-package com.dn.dnaicodemotherbackend.exception;
+package com.dn.dnaicodemother.exception;
 
 import lombok.Getter;
 

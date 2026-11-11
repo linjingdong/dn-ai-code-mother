@@ -1,8 +1,8 @@
-package com.dn.dnaicodemotherbackend.exception;
+package com.dn.dnaicodemother.exception;
 
 import cn.hutool.json.JSONUtil;
-import com.dn.dnaicodemotherbackend.common.BaseResponse;
-import com.dn.dnaicodemotherbackend.common.ResultUtils;
+import com.dn.dnaicodemother.common.BaseResponse;
+import com.dn.dnaicodemother.common.ResultUtils;
 import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
