@@ -1,9 +1,9 @@
 package com.dn.dnaicodeuser.service;
 
-import com.dn.dnaicodemotherbackend.model.dto.user.UserQueryRequest;
-import com.dn.dnaicodemotherbackend.model.entity.User;
-import com.dn.dnaicodemotherbackend.model.vo.LoginUserVO;
-import com.dn.dnaicodemotherbackend.model.vo.UserVO;
+import com.dn.dnaicodemother.model.dto.user.UserQueryRequest;
+import com.dn.dnaicodemother.model.entity.User;
+import com.dn.dnaicodemother.model.vo.LoginUserVO;
+import com.dn.dnaicodemother.model.vo.UserVO;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.core.service.IService;
 import jakarta.servlet.http.HttpServletRequest;

@@ -3,13 +3,13 @@ package com.dn.dnaicodeuser.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
-import com.dn.dnaicodemotherbackend.exception.BusinessException;
-import com.dn.dnaicodemotherbackend.exception.ErrorCode;
-import com.dn.dnaicodemotherbackend.model.dto.user.UserQueryRequest;
-import com.dn.dnaicodemotherbackend.model.entity.User;
-import com.dn.dnaicodemotherbackend.model.enums.UserRoleEnum;
-import com.dn.dnaicodemotherbackend.model.vo.LoginUserVO;
-import com.dn.dnaicodemotherbackend.model.vo.UserVO;
+import com.dn.dnaicodemother.exception.BusinessException;
+import com.dn.dnaicodemother.exception.ErrorCode;
+import com.dn.dnaicodemother.model.dto.user.UserQueryRequest;
+import com.dn.dnaicodemother.model.entity.User;
+import com.dn.dnaicodemother.model.enums.UserRoleEnum;
+import com.dn.dnaicodemother.model.vo.LoginUserVO;
+import com.dn.dnaicodemother.model.vo.UserVO;
 import com.dn.dnaicodeuser.mapper.UserMapper;
 import com.dn.dnaicodeuser.service.UserService;
 import com.mybatisflex.core.query.QueryWrapper;
@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.dn.dnaicodemotherbackend.constant.UserConstant.USER_LOGIN_STATE;
+import static com.dn.dnaicodemother.constant.UserConstant.USER_LOGIN_STATE;
 
 /**
  * 用户 服务层实现。

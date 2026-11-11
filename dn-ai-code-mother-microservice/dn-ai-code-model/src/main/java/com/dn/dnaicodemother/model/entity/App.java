@@ -1,4 +1,4 @@
-package com.dn.dnaicodemotherbackend.model.entity;
+package com.dn.dnaicodemother.model.entity;
 
 import com.mybatisflex.annotation.Column;
 import com.mybatisflex.annotation.Id;

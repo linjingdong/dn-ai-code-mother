@@ -1,6 +1,6 @@
 package com.dn.dnaicodeuser.mapper;
 
-import com.dn.dnaicodemotherbackend.model.entity.User;
+import com.dn.dnaicodemother.model.entity.User;
 import com.mybatisflex.core.BaseMapper;
 
 /**

@@ -1,6 +1,6 @@
-package com.dn.dnaicodemotherbackend.model.dto.chatHistory;
+package com.dn.dnaicodemother.model.dto.chatHistory;
 
-import com.dn.dnaicodemotherbackend.common.PageRequest;
+import com.dn.dnaicodemother.common.PageRequest;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

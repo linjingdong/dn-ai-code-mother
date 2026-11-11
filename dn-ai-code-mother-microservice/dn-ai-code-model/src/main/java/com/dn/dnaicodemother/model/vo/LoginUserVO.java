@@ -1,15 +1,19 @@
-package com.dn.dnaicodemotherbackend.model.vo;
+package com.dn.dnaicodemother.model.vo;
 
 import lombok.Data;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Data
-public class UserVO implements Serializable {
+public class LoginUserVO implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     /**
-     * id
+     * 用户 id
      */
     private Long id;
 
@@ -43,5 +47,8 @@ public class UserVO implements Serializable {
      */
     private LocalDateTime createTime;
 
-    private static final long serialVersionUID = 1L;
+    /**
+     * 更新时间
+     */
+    private LocalDateTime updateTime;
 }

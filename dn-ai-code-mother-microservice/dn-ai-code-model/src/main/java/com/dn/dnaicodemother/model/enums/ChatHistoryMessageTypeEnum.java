@@ -1,19 +1,19 @@
-package com.dn.dnaicodemotherbackend.model.enums;
+package com.dn.dnaicodemother.model.enums;
 
 import cn.hutool.core.util.ObjUtil;
 import lombok.Getter;
 
 @Getter
-public enum UserRoleEnum {
+public enum ChatHistoryMessageTypeEnum {
 
     USER("用户", "user"),
-    ADMIN("管理员", "admin");
+    AI("AI", "ai");
 
     private final String text;
 
     private final String value;
 
-    UserRoleEnum(String text, String value) {
+    ChatHistoryMessageTypeEnum(String text, String value) {
         this.text = text;
         this.value = value;
     }
@@ -24,11 +24,11 @@ public enum UserRoleEnum {
      * @param value 枚举值的value
      * @return 枚举值
      */
-    public static UserRoleEnum getEnumByValue(String value) {
+    public static ChatHistoryMessageTypeEnum getEnumByValue(String value) {
         if (ObjUtil.isEmpty(value)) {
             return null;
         }
-        for (UserRoleEnum anEnum : UserRoleEnum.values()) {
+        for (ChatHistoryMessageTypeEnum anEnum : ChatHistoryMessageTypeEnum.values()) {
             if (anEnum.value.equals(value)) {
                 return anEnum;
             }

@@ -1,4 +1,4 @@
-package com.dn.dnaicodemotherbackend.model.entity;
+package com.dn.dnaicodemother.model.entity;
 
 import com.mybatisflex.annotation.Column;
 import com.mybatisflex.annotation.Id;
@@ -15,7 +15,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * 对话历史 实体类。
+ * 用户 实体类。
  *
  * @author Lin_jd
  */
@@ -23,8 +23,8 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table("chat_history")
-public class ChatHistory implements Serializable {
+@Table("user")
+public class User implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -36,27 +36,46 @@ public class ChatHistory implements Serializable {
     private Long id;
 
     /**
-     * 消息
+     * 账号
      */
-    private String message;
+    @Column("userAccount")
+    private String userAccount;
 
     /**
-     * user/ai
+     * 密码
      */
-    @Column("messageType")
-    private String messageType;
+    @Column("userPassword")
+    private String userPassword;
 
     /**
-     * 应用id
+     * 用户昵称
      */
-    @Column("appId")
-    private Long appId;
+    @Column("userName")
+    private String userName;
 
     /**
-     * 创建用户id
+     * 用户头像
      */
-    @Column("userId")
-    private Long userId;
+    @Column("userAvatar")
+    private String userAvatar;
+
+    /**
+     * 用户简介
+     */
+    @Column("userProfile")
+    private String userProfile;
+
+    /**
+     * 用户角色：user/admin
+     */
+    @Column("userRole")
+    private String userRole;
+
+    /**
+     * 编辑时间
+     */
+    @Column("editTime")
+    private LocalDateTime editTime;
 
     /**
      * 创建时间

@@ -1,4 +1,4 @@
-package com.dn.dnaicodemotherbackend.model.dto.app;
+package com.dn.dnaicodemother.model.dto.app;
 
 import lombok.Data;
 

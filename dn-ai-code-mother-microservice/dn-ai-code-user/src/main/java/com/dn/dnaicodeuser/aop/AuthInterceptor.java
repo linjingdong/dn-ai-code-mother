@@ -1,10 +1,10 @@
 package com.dn.dnaicodeuser.aop;
 
-import com.dn.dnaicodemotherbackend.annotation.AuthCheck;
-import com.dn.dnaicodemotherbackend.exception.BusinessException;
-import com.dn.dnaicodemotherbackend.exception.ErrorCode;
-import com.dn.dnaicodemotherbackend.model.entity.User;
-import com.dn.dnaicodemotherbackend.model.enums.UserRoleEnum;
+import com.dn.dnaicodemother.annotation.AuthCheck;
+import com.dn.dnaicodemother.exception.BusinessException;
+import com.dn.dnaicodemother.exception.ErrorCode;
+import com.dn.dnaicodemother.model.entity.User;
+import com.dn.dnaicodemother.model.enums.UserRoleEnum;
 import com.dn.dnaicodeuser.service.UserService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;

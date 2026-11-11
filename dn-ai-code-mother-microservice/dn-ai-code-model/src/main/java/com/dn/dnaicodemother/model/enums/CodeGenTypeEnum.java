@@ -1,4 +1,4 @@
-package com.dn.dnaicodemotherbackend.model.enums;
+package com.dn.dnaicodemother.model.enums;
 
 import cn.hutool.core.util.ObjUtil;
 import lombok.Getter;
