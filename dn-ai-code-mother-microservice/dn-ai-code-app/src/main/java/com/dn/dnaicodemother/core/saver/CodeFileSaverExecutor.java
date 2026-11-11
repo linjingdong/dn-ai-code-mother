@@ -1,0 +1,36 @@
+package com.dn.dnaicodemother.core.saver;
+
+import com.dn.dnaicodemother.ai.model.HtmlCodeResult;
+import com.dn.dnaicodemother.ai.model.MultiFileCodeResult;
+import com.dn.dnaicodemother.exception.BusinessException;
+import com.dn.dnaicodemother.exception.ErrorCode;
+import com.dn.dnaicodemother.model.enums.CodeGenTypeEnum;
+
+import java.io.File;
+
+/**
+ * @author Lin_jd
+ * @version V1.0.0
+ * @since 2026/10/23 22:29
+ **/
+public class CodeFileSaverExecutor {
+
+    private final static HtmlCodeFileSaverTemplate htmlCodeFileSaverTemplate = new HtmlCodeFileSaverTemplate();
+
+    private final static MultiFileCodeFileSaverTemplate multiFileCodeFileSaverTemplate = new MultiFileCodeFileSaverTemplate();
+
+    /**
+     * 执行代码保存
+     * @param codeResult 代码结果对象
+     * @param appId 应用ID
+     * @param codeGenTypeEnum 代码生成类型
+     * @return 保存的目录
+     */
+    public static File executeSave(Object codeResult, CodeGenTypeEnum codeGenTypeEnum, Long appId) {
+        return switch (codeGenTypeEnum) {
+            case HTML -> htmlCodeFileSaverTemplate.saveCode((HtmlCodeResult) codeResult, appId);
+            case MULTI_FILE -> multiFileCodeFileSaverTemplate.saveCode((MultiFileCodeResult) codeResult, appId);
+            default -> throw new BusinessException(ErrorCode.SYSTEM_ERROR, "不支持的代码生成类型");
+        };
+    }
+}

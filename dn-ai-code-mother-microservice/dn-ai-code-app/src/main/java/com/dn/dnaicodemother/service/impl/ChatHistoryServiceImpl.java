@@ -1,0 +1,158 @@
+package com.dn.dnaicodemother.service.impl;
+
+import cn.hutool.core.util.StrUtil;
+import com.dn.dnaicodemother.constant.UserConstant;
+import com.dn.dnaicodemother.exception.ErrorCode;
+import com.dn.dnaicodemother.exception.ThrowUtils;
+import com.dn.dnaicodemother.mapper.ChatHistoryMapper;
+import com.dn.dnaicodemother.model.dto.chatHistory.ChatHistoryQueryRequest;
+import com.dn.dnaicodemother.model.entity.App;
+import com.dn.dnaicodemother.model.entity.ChatHistory;
+import com.dn.dnaicodemother.model.entity.User;
+import com.dn.dnaicodemother.model.enums.ChatHistoryMessageTypeEnum;
+import com.dn.dnaicodemother.service.AppService;
+import com.dn.dnaicodemother.service.ChatHistoryService;
+import com.mybatisflex.core.paginate.Page;
+import com.mybatisflex.core.query.QueryWrapper;
+import com.mybatisflex.spring.service.impl.ServiceImpl;
+import dev.langchain4j.data.message.AiMessage;
+import dev.langchain4j.data.message.UserMessage;
+import dev.langchain4j.memory.chat.MessageWindowChatMemory;
+import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+/**
+ * 对话历史 服务层实现。
+ *
+ * @author Lin_jd
+ */
+@Slf4j
+@Service
+public class ChatHistoryServiceImpl extends ServiceImpl<ChatHistoryMapper, ChatHistory> implements ChatHistoryService {
+
+    @Resource
+    @Lazy
+    private AppService appService;
+
+    @Override
+    public boolean addChatHistory(Long appId, String message, String messageType, Long userId) {
+        // 1. 校验参数
+        ThrowUtils.throwIf(appId == null || appId <= 0, ErrorCode.PARAMS_ERROR, "应用 ID 错误");
+        ThrowUtils.throwIf(StrUtil.isBlank(message), ErrorCode.PARAMS_ERROR, "消息不能为空");
+        ThrowUtils.throwIf(StrUtil.isBlank(messageType), ErrorCode.PARAMS_ERROR, "消息类型不能为空");
+        ThrowUtils.throwIf(userId == null || userId <= 0, ErrorCode.PARAMS_ERROR, "用户 ID 错误");
+
+        // 2. 校验消息类型
+        ChatHistoryMessageTypeEnum messageTypeEnum = ChatHistoryMessageTypeEnum.getEnumByValue(messageType);
+        ThrowUtils.throwIf(null == messageTypeEnum, ErrorCode.SYSTEM_ERROR, "不支持的消息类型");
+
+        // 3. 添加消息历史
+        ChatHistory chatHistory = ChatHistory.builder()
+                .appId(appId)
+                .message(message)
+                .messageType(messageType)
+                .userId(userId)
+                .build();
+
+        return this.save(chatHistory);
+    }
+
+    @Override
+    public boolean deleteByAppId(Long appId) {
+        ThrowUtils.throwIf(appId == null || appId <= 0, ErrorCode.PARAMS_ERROR, "应用 ID 不能为空");
+        return this.remove(QueryWrapper.create().eq("appId", appId));
+    }
+
+    @Override
+    public Page<ChatHistory> listAppChatHistoryByPage(Long appId, int pageSize, LocalDateTime lastCreateTime, User loginUser) {
+        ThrowUtils.throwIf(appId == null || appId <= 0, ErrorCode.PARAMS_ERROR, "应用ID不能为空");
+        ThrowUtils.throwIf(pageSize <= 0 || pageSize > 50, ErrorCode.PARAMS_ERROR, "页面大小必须在1-50之间");
+        ThrowUtils.throwIf(loginUser == null, ErrorCode.NOT_LOGIN_ERROR);
+        // 验证权限：只有应用创建者和管理员可以查看
+        App app = appService.getById(appId);
+        ThrowUtils.throwIf(app == null, ErrorCode.NOT_FOUND_ERROR, "应用不存在");
+        boolean isAdmin = UserConstant.ADMIN_ROLE.equals(loginUser.getUserRole());
+        boolean isCreator = app.getUserId().equals(loginUser.getId());
+        ThrowUtils.throwIf(!isAdmin && !isCreator, ErrorCode.NO_AUTH_ERROR, "无权查看该应用的对话历史");
+        // 构建查询条件
+        ChatHistoryQueryRequest queryRequest = new ChatHistoryQueryRequest();
+        queryRequest.setAppId(appId);
+        queryRequest.setLastCreateTime(lastCreateTime);
+        QueryWrapper queryWrapper = this.getQueryWrapper(queryRequest);
+        // 查询数据
+        return this.page(Page.of(1, pageSize), queryWrapper);
+    }
+
+    @Override
+    public int loadChatHistoryToMemory(Long appId, MessageWindowChatMemory chatMemory, int maxCount) {
+        try {
+            // 1. 查询排除用户最新对话记录（第1条开始）
+            List<ChatHistory> chatHistoryList = this.list(QueryWrapper.create()
+                    .eq(ChatHistory::getAppId, appId)
+                    .orderBy(ChatHistory::getCreateTime, false)
+                    .limit(1, maxCount)
+            );
+            if (chatHistoryList.isEmpty()) {
+                return 0;
+            }
+            chatHistoryList = chatHistoryList.reversed();
+
+            // 2. 按照时间顺序插入到对话记忆中
+            int loadedCount = 0;
+            chatMemory.clear();
+            for (ChatHistory history : chatHistoryList) {
+                if (history.getMessageType().equals(ChatHistoryMessageTypeEnum.USER.getValue())) {
+                    chatMemory.add(UserMessage.from(history.getMessage()));
+                } else if (history.getMessageType().equals(ChatHistoryMessageTypeEnum.AI.getValue())) {
+                    chatMemory.add(AiMessage.from(history.getMessage()));
+                }
+                loadedCount++;
+            }
+            log.info("成功为 appId:{} 应用加载了 {} 条对话历史记录", appId, loadedCount);
+            return loadedCount;
+        } catch (Exception e) {
+            log.error("加载对话历史记录失败，appId:{}，error:{}", appId, e.getMessage());
+            return 0;
+        }
+    }
+
+    @Override
+    public QueryWrapper getQueryWrapper(ChatHistoryQueryRequest chatHistoryQueryRequest) {
+        QueryWrapper queryWrapper = QueryWrapper.create();
+        if (chatHistoryQueryRequest == null) {
+            return queryWrapper;
+        }
+        Long id = chatHistoryQueryRequest.getId();
+        String message = chatHistoryQueryRequest.getMessage();
+        String messageType = chatHistoryQueryRequest.getMessageType();
+        Long appId = chatHistoryQueryRequest.getAppId();
+        Long userId = chatHistoryQueryRequest.getUserId();
+        LocalDateTime lastCreateTime = chatHistoryQueryRequest.getLastCreateTime();
+        String sortField = chatHistoryQueryRequest.getSortField();
+        String sortOrder = chatHistoryQueryRequest.getSortOrder();
+        // 拼接查询条件
+        queryWrapper.eq("id", id)
+                .like("message", message)
+                .eq("messageType", messageType)
+                .eq("appId", appId)
+                .eq("userId", userId);
+        // 游标查询逻辑 - 只使用 createTime 作为游标
+        if (lastCreateTime != null) {
+            queryWrapper.lt("createTime", lastCreateTime);
+        }
+        // 排序
+        if (StrUtil.isNotBlank(sortField)) {
+            queryWrapper.orderBy(sortField, "ascend".equals(sortOrder));
+        } else {
+            // 默认按创建时间降序排列
+            queryWrapper.orderBy("createTime", false);
+        }
+        return queryWrapper;
+    }
+
+}
